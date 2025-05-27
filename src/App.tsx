@@ -1,11 +1,8 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchQuizQuestions } from './API';
-// Components
-// In App.tsx or App.jsx
 import QuestionCard from './components/QuestionCard';
-
-// Types
 import { QuestionState, Difficulty } from './API';
+import { GlobalStyle, Wrapper, AnimatedLetter, Button } from './App.styles';
 
 export type AnswerObject = {
   question: string;
@@ -16,9 +13,8 @@ export type AnswerObject = {
 
 const TOTAL_QUESTIONS = 10;
 
-
 const App = () => {
-  // State
+  // States
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<QuestionState[]>([]);
   const [number, setNumber] = useState(0);
@@ -26,17 +22,27 @@ const App = () => {
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(true);
 
-  console.log(questions);
+  // Für Animation: aktueller "springender" Buchstabenindex
+  const [animatedIndex, setAnimatedIndex] = useState(0);
 
+  // Animation Loop (alle 600ms Index erhöhen)
+  useEffect(() => {
+    if (!gameOver) {
+      const interval = setInterval(() => {
+        setAnimatedIndex(prev => (prev + 1) % 7); // 7 ist ungefähr Wortlänge (REACT Q), passt sich an h1-Länge an
+      }, 600);
+      return () => clearInterval(interval);
+    } else {
+      setAnimatedIndex(0);
+    }
+  }, [gameOver]);
 
+  // Start Quiz
   const startTrivia = async () => {
     setLoading(true);
     setGameOver(false);
 
-    const newQuestions = await fetchQuizQuestions(
-      TOTAL_QUESTIONS,
-      Difficulty.EASY
-    );
+    const newQuestions = await fetchQuizQuestions(TOTAL_QUESTIONS, Difficulty.EASY);
 
     setQuestions(newQuestions);
     setScore(0);
@@ -45,65 +51,79 @@ const App = () => {
     setLoading(false);
   };
 
-const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
-  if (!gameOver) {
-    // User Answer
-    const answer = e.currentTarget.value;
-    // Check answer against correct value
-    const correct = questions[number].correct_answer === answer;
-    // Add score if answer is correct
-    if (correct) setScore(prev => prev + 1);
-    // Save answer in the array for user answers
-    const answerObject = {
-      question: questions[number].question,
-      answer,
-      correct,
-      correctAnswer: questions[number].correct_answer,
-    };
-    setUserAnswers(prev => [...prev, answerObject]);
-  }
-};
+  // Antwort prüfen
+  const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!gameOver) {
+      const answer = e.currentTarget.value;
+      const correct = questions[number].correct_answer === answer;
+      if (correct) setScore(prev => prev + 1);
 
-const nextQuestion = () => {
-  const nextQuestion = number +1;
-  if (nextQuestion === TOTAL_QUESTIONS) {
-    setGameOver(true);
-  } else {
-    setNumber(nextQuestion);
-  }
-};
+      const answerObject = {
+        question: questions[number].question,
+        answer,
+        correct,
+        correctAnswer: questions[number].correct_answer,
+      };
+      setUserAnswers(prev => [...prev, answerObject]);
+    }
+  };
+
+  // Nächste Frage
+  const nextQuestion = () => {
+    const nextQuestion = number + 1;
+    if (nextQuestion === TOTAL_QUESTIONS) {
+      setGameOver(true);
+    } else {
+      setNumber(nextQuestion);
+    }
+  };
+
+  // H1 Text splitten und Buchstaben animiert darstellen
+  const title = "REACT QUIZ";
+  const letters = title.split("");
 
   return (
-  <div className='App'>
-    <h1>REACT QUIZ</h1>
-    {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
-    <button className="start" onClick={startTrivia}>
-      Start
-    </button>
-    ) : null }
-    {!gameOver ? <p className="score">Score:</p> : null}
-    {loading && <p>Loading Questions ...</p>}
-    {!loading && !gameOver && (
-    <QuestionCard 
-     questionNr={number +1}
-      totalQuestions={TOTAL_QUESTIONS}
-      question={questions[number].question}
-      answers={questions[number].answers}
-      userAnswer={userAnswers ? userAnswers[number] : undefined}
-      callback={checkAnswer}
-        />
-    )}
-    {!gameOver && 
-    !loading && 
-    userAnswers.length === number +1 && 
-    number !== TOTAL_QUESTIONS - 1 ? (
-    <button className="next" onClick={nextQuestion}>
-      Next Question
-    </button>
-  ) : null }
-    
-  </div>
-);
+    <>
+      <GlobalStyle />
+      <Wrapper>
+        <h1 aria-label={title} role="heading">
+          {letters.map((char, i) => (
+            <AnimatedLetter
+              key={i}
+              index={i}
+              animatedIndex={animatedIndex}
+              aria-hidden="true"
+            >
+              {char}
+            </AnimatedLetter>
+          ))}
+        </h1>
+
+        {(gameOver || userAnswers.length === TOTAL_QUESTIONS) && (
+          <Button className="start" onClick={startTrivia}>Start</Button>
+        )}
+
+        {!gameOver && <p className="score">Score: {score}</p>}
+
+        {loading && <p>Loading Questions ...</p>}
+
+        {!loading && !gameOver && questions.length > 0 && (
+          <QuestionCard
+            questionNr={number + 1}
+            totalQuestions={TOTAL_QUESTIONS}
+            question={questions[number].question}
+            answers={questions[number].answers}
+            userAnswer={userAnswers ? userAnswers[number] : undefined}
+            callback={checkAnswer}
+          />
+        )}
+
+        {!gameOver && !loading && userAnswers.length === number + 1 && number !== TOTAL_QUESTIONS - 1 && (
+          <Button className="next" onClick={nextQuestion}>Next Question</Button>
+        )}
+      </Wrapper>
+    </>
+  );
 };
 
 export default App;
