@@ -13,7 +13,7 @@ export const GlobalStyle = createGlobalStyle`
     background-repeat: no-repeat;
     height: 100vh;
     width: 100vw;
-    margin: 0;
+    margin: 2px;
     padding: 0 20px;
     display: flex;
     justify-content: center;
@@ -28,7 +28,7 @@ export const GlobalStyle = createGlobalStyle`
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;  /* Tippfehler behoben */
+  align-items: center;
 
   > p {
     color: #fff;
@@ -37,7 +37,7 @@ export const Wrapper = styled.div`
   .score {
     color: #fff;
     font-size: 2rem;
-    margin: 0;
+    margin-top: 10px;
   }
 
   h1 {
@@ -45,7 +45,8 @@ export const Wrapper = styled.div`
     font-size: 70px;
     font-weight: 400;
     text-align: center;
-    margin: 20px;
+    margin-top: 40px;
+    margin-bottom: 10px;
 
     background: linear-gradient(180deg, #fffcf2, #87f1ff);
     background-clip: text;
@@ -96,25 +97,36 @@ export const AnimatedLetter = styled.span<{ index: number; animatedIndex: number
   transition: color 0.3s ease;
 `;
 
-// Button mit pastellfarbenem Look und sanften Hover-Effekten
 export const Button = styled.button`
   cursor: pointer;
   background: linear-gradient(135deg, #fbc7c7, #c7fbe5);
-  border: 2px solid #c7fbe5;
-  box-shadow: 0px 5px 15px rgba(199, 251, 229, 0.6);
-  border-radius: 15px;
+  border: 4px solid #c7fbe5;
+  box-shadow: 0px 6px 0px #a5d6c8;
+  border-radius: 4px; // statt 15px → kantiger
   height: 50px;
   margin: 20px 0;
-  padding: 0 50px;
-  color: #3b1f0f;
-  font-family: 'Jersey 15', sans-serif;
-  font-size: 1.3rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  padding: 0 40px;
 
-  &:hover {
-    background: linear-gradient(135deg, #c7fbe5, #fbc7c7);
-    box-shadow: 0 8px 20px rgba(199, 251, 229, 0.8);
-    transform: translateY(-3px) scale(1.05);
+  color:rgb(15, 43, 91);
+  font-family: 'Jersey 15', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.15s ease-in-out;
+
+ &:hover {
+  background: linear-gradient(135deg, #fbc7c7, #c7fbe5);
+
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 6px 3px #c7fbe5,
+    0 0 10px 5px #fbc7c7;
+  transform: translateY(-2px) scale(1.03);
+}
+
+  &:active {
+    box-shadow: none;
+    transform: translateY(4px);
   }
 `;

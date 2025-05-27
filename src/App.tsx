@@ -29,7 +29,7 @@ const App = () => {
   useEffect(() => {
     if (!gameOver) {
       const interval = setInterval(() => {
-        setAnimatedIndex(prev => (prev + 1) % 7); // 7 ist ungefähr Wortlänge (REACT Q), passt sich an h1-Länge an
+        setAnimatedIndex(prev => (prev + 1) % 7); // Word length
       }, 600);
       return () => clearInterval(interval);
     } else {
@@ -79,7 +79,7 @@ const App = () => {
   };
 
   // H1 Text splitten und Buchstaben animiert darstellen
-  const title = "REACT QUIZ";
+  const title = "GAME QUIZ";
   const letters = title.split("");
 
   return (
